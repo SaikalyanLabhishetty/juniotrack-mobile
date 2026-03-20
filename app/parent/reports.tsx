@@ -1,9 +1,9 @@
-import { router } from 'expo-router';
-import { useMemo } from 'react';
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { router } from "expo-router";
+import { useMemo } from "react";
+import { Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { STUDENTS } from '@/data/students';
+import { STUDENTS } from "@/data/students";
 
 type ReportItem = {
   id: string;
@@ -18,44 +18,44 @@ type ReportItem = {
 
 const reports: ReportItem[] = [
   {
-    id: 'r1',
-    testType: 'Slip Test',
-    subject: 'Math',
+    id: "r1",
+    testType: "Slip Test",
+    subject: "Math",
     total: 20,
     earned: 16,
     highest: 19,
     passMark: 8,
-    date: '11 Mar 2026',
+    date: "11 Mar 2026",
   },
   {
-    id: 'r2',
-    testType: 'Unit Test',
-    subject: 'Science',
+    id: "r2",
+    testType: "Unit Test",
+    subject: "Science",
     total: 50,
     earned: 41,
     highest: 47,
     passMark: 20,
-    date: '06 Mar 2026',
+    date: "06 Mar 2026",
   },
   {
-    id: 'r3',
-    testType: 'Quarterly Test',
-    subject: 'English',
+    id: "r3",
+    testType: "Quarterly Test",
+    subject: "English",
     total: 100,
     earned: 68,
     highest: 92,
     passMark: 35,
-    date: '20 Feb 2026',
+    date: "20 Feb 2026",
   },
   {
-    id: 'r4',
-    testType: 'Half Yearly Test',
-    subject: 'Social',
+    id: "r4",
+    testType: "Half Yearly Test",
+    subject: "Social",
     total: 100,
     earned: 31,
     highest: 88,
     passMark: 35,
-    date: '10 Jan 2026',
+    date: "10 Jan 2026",
   },
 ];
 
@@ -64,11 +64,16 @@ export default function ParentReportsScreen() {
   const child = STUDENTS[0];
 
   const overview = useMemo(() => {
-    const passed = reports.filter((item) => item.earned >= item.passMark).length;
+    const passed = reports.filter(
+      (item) => item.earned >= item.passMark,
+    ).length;
     const average =
       reports.length > 0
         ? Math.round(
-            reports.reduce((sum, item) => sum + (item.earned / item.total) * 100, 0) / reports.length
+            reports.reduce(
+              (sum, item) => sum + (item.earned / item.total) * 100,
+              0,
+            ) / reports.length,
           )
         : 0;
 
@@ -80,24 +85,36 @@ export default function ParentReportsScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
+    <SafeAreaView className="bg-[#eff6ff] flex-1">
+      <ScrollView
+        className="bg-[#eff6ff]"
+        contentContainerStyle={{ padding: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="mb-4">
           <Pressable
             onPress={() => router.back()}
-            style={[styles.backButton, { marginTop: insets.top > 0 ? 4 : 12 }]}>
-            <Text style={styles.backButtonText}>Back</Text>
+            className="mb-2 w-[58px]"
+            style={{ marginTop: insets.top > 0 ? 4 : 12 }}
+          >
+            <Text className="text-[#0ea5e9] text-[15px] font-semibold">
+              Back
+            </Text>
           </Pressable>
-          <Text style={styles.title}>Reports</Text>
-          <Text style={styles.subtitle}>{`${child.name} • Academic results`}</Text>
+          <Text className="text-[#0f172a] text-[28px] font-bold">Reports</Text>
+          <Text className="text-[#475569] text-sm mt-1.5">
+            {`${child.name} • Academic results`}
+          </Text>
         </View>
 
-        <View style={styles.overviewCard}>
-          <Text style={styles.overviewTitle}>Performance Overview</Text>
-          <View style={styles.overviewRow}>
-            <Text style={styles.overviewItem}>{`Passed: ${overview.passed}`}</Text>
-            <Text style={styles.overviewItem}>{`Failed: ${overview.failed}`}</Text>
-            <Text style={styles.overviewItem}>{`Avg: ${overview.average}%`}</Text>
+        <View className="bg-white border border-[#bbf7d0] rounded-xl p-3 mb-3">
+          <Text className="text-[#166534] text-sm font-bold mb-2">
+            Performance Overview
+          </Text>
+          <View className="flex-row justify-between">
+            <Text className="text-[#166534] text-sm font-semibold">{`Passed: ${overview.passed}`}</Text>
+            <Text className="text-[#166534] text-sm font-semibold">{`Failed: ${overview.failed}`}</Text>
+            <Text className="text-[#166534] text-sm font-semibold">{`Avg: ${overview.average}%`}</Text>
           </View>
         </View>
 
@@ -105,18 +122,29 @@ export default function ParentReportsScreen() {
           const isPass = item.earned >= item.passMark;
 
           return (
-            <View key={item.id} style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{item.testType}</Text>
-                <View style={[styles.resultBadge, isPass ? styles.passBadge : styles.failBadge]}>
-                  <Text style={styles.resultBadgeText}>{isPass ? 'PASS' : 'FAIL'}</Text>
+            <View
+              key={item.id}
+              className="border border-[#93c5fd] rounded-xl p-3 mb-2"
+            >
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-[#0f172a] text-[15px] font-bold flex-1 mr-2">
+                  {item.testType}
+                </Text>
+                <View
+                  className={`rounded-full px-2.5 py-1 ${
+                    isPass ? "bg-[#16a34a]" : "bg-[#dc2626]"
+                  }`}
+                >
+                  <Text className="text-white text-xs font-bold">
+                    {isPass ? "PASS" : "FAIL"}
+                  </Text>
                 </View>
               </View>
 
-              <Text style={styles.metaText}>{`Subject: ${item.subject}`}</Text>
-              <Text style={styles.metaText}>{`Date: ${item.date}`}</Text>
-              <Text style={styles.metaText}>{`Score: ${item.earned} / ${item.total}`}</Text>
-              <Text style={styles.metaText}>{`Highest Mark: ${item.highest}`}</Text>
+              <Text className="text-[#334155] text-[13px] mb-1">{`Subject: ${item.subject}`}</Text>
+              <Text className="text-[#334155] text-[13px] mb-1">{`Date: ${item.date}`}</Text>
+              <Text className="text-[#334155] text-[13px] mb-1">{`Score: ${item.earned} / ${item.total}`}</Text>
+              <Text className="text-[#334155] text-[13px]">{`Highest Mark: ${item.highest}`}</Text>
             </View>
           );
         })}
@@ -124,100 +152,3 @@ export default function ParentReportsScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: '#fff',
-    flex: 1,
-  },
-  container: {
-    backgroundColor: '#fff',
-    padding: 20,
-  },
-  header: {
-    marginBottom: 16,
-  },
-  backButton: {
-    marginBottom: 10,
-    width: 58,
-  },
-  backButtonText: {
-    color: '#0f766e',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  title: {
-    color: '#0f172a',
-    fontSize: 28,
-    fontWeight: '700',
-  },
-  subtitle: {
-    color: '#475569',
-    fontSize: 14,
-    marginTop: 6,
-  },
-  overviewCard: {
-    backgroundColor: '#f0fdf4',
-    borderColor: '#bbf7d0',
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 12,
-    padding: 12,
-  },
-  overviewTitle: {
-    color: '#166534',
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 10,
-  },
-  overviewRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  overviewItem: {
-    color: '#166534',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  card: {
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 10,
-    padding: 12,
-  },
-  cardHeader: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  cardTitle: {
-    color: '#0f172a',
-    flex: 1,
-    fontSize: 15,
-    fontWeight: '700',
-    marginRight: 8,
-  },
-  resultBadge: {
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  passBadge: {
-    backgroundColor: '#16a34a',
-  },
-  failBadge: {
-    backgroundColor: '#dc2626',
-  },
-  resultBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  metaText: {
-    color: '#334155',
-    fontSize: 13,
-    marginBottom: 4,
-  },
-});

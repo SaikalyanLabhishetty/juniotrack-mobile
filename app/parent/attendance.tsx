@@ -1,24 +1,24 @@
-import { router } from 'expo-router';
-import { useMemo } from 'react';
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { router } from "expo-router";
+import { useMemo } from "react";
+import { Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { STUDENTS } from '@/data/students';
+import { STUDENTS } from "@/data/students";
 
 type DailyAttendance = {
   id: string;
   date: string;
-  status: 'Present' | 'Absent';
+  status: "Present" | "Absent";
 };
 
 const attendanceHistory: DailyAttendance[] = [
-  { id: 'a1', date: '13 Mar 2026', status: 'Present' },
-  { id: 'a2', date: '12 Mar 2026', status: 'Present' },
-  { id: 'a3', date: '11 Mar 2026', status: 'Absent' },
-  { id: 'a4', date: '10 Mar 2026', status: 'Present' },
-  { id: 'a5', date: '09 Mar 2026', status: 'Present' },
-  { id: 'a6', date: '08 Mar 2026', status: 'Present' },
-  { id: 'a7', date: '07 Mar 2026', status: 'Absent' },
+  { id: "a1", date: "13 Mar 2026", status: "Present" },
+  { id: "a2", date: "12 Mar 2026", status: "Present" },
+  { id: "a3", date: "11 Mar 2026", status: "Absent" },
+  { id: "a4", date: "10 Mar 2026", status: "Present" },
+  { id: "a5", date: "09 Mar 2026", status: "Present" },
+  { id: "a6", date: "08 Mar 2026", status: "Present" },
+  { id: "a7", date: "07 Mar 2026", status: "Absent" },
 ];
 
 export default function ParentAttendanceScreen() {
@@ -26,7 +26,9 @@ export default function ParentAttendanceScreen() {
   const child = STUDENTS[0];
 
   const summary = useMemo(() => {
-    const present = attendanceHistory.filter((item) => item.status === 'Present').length;
+    const present = attendanceHistory.filter(
+      (item) => item.status === "Present",
+    ).length;
     const total = attendanceHistory.length;
     const percent = total > 0 ? Math.round((present / total) * 100) : 0;
     return {
@@ -37,37 +39,62 @@ export default function ParentAttendanceScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
+    <SafeAreaView className="bg-[#eff6ff] flex-1">
+      <ScrollView
+        className="bg-[#eff6ff]"
+        contentContainerStyle={{ padding: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="mb-4">
           <Pressable
             onPress={() => router.back()}
-            style={[styles.backButton, { marginTop: insets.top > 0 ? 4 : 12 }]}>
-            <Text style={styles.backButtonText}>Back</Text>
+            className="mb-2 w-[58px]"
+            style={{ marginTop: insets.top > 0 ? 4 : 12 }}
+          >
+            <Text className="text-[#0f766e] text-[15px] font-semibold">
+              Back
+            </Text>
           </Pressable>
-          <Text style={styles.title}>Attendance</Text>
-          <Text style={styles.subtitle}>{`${child.name} • Class 5-A`}</Text>
+          <Text className="text-[#0f172a] text-[28px] font-bold">
+            Attendance
+          </Text>
+          <Text className="text-[#475569] text-sm mt-1.5">{`${child.name} • Class 5-A`}</Text>
         </View>
 
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>This Week Summary</Text>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryText}>{`Present: ${summary.present}`}</Text>
-            <Text style={styles.summaryText}>{`Absent: ${summary.absent}`}</Text>
-            <Text style={styles.summaryText}>{`${summary.percent}%`}</Text>
+        <View className="bg-white border border-[#93c5fd] rounded-xl p-3 mb-4">
+          <Text className="text-[#0369a1] text-sm font-bold mb-2">
+            This Week Summary
+          </Text>
+          <View className="flex-row justify-between">
+            <Text className="text-[#166534] text-sm font-semibold">{`Present: ${summary.present}`}</Text>
+            <Text className="text-[#166534] text-sm font-semibold">{`Absent: ${summary.absent}`}</Text>
+            <Text className="text-[#166534] text-sm font-semibold">{`${summary.percent}%`}</Text>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Daily Status</Text>
+        <Text className="text-[#0f172a] text-base font-bold mb-2">
+          Daily Status
+        </Text>
 
         {attendanceHistory.map((item) => {
-          const isPresent = item.status === 'Present';
+          const isPresent = item.status === "Present";
 
           return (
-            <View key={item.id} style={styles.rowCard}>
-              <Text style={styles.dateText}>{item.date}</Text>
-              <View style={[styles.badge, isPresent ? styles.badgePresent : styles.badgeAbsent]}>
-                <Text style={styles.badgeText}>{item.status}</Text>
+            <View
+              key={item.id}
+              className="flex-row items-center justify-between border border-[#e2e8f0] rounded-xl p-3 mb-2"
+            >
+              <Text className="text-[#1e293b] text-sm font-semibold">
+                {item.date}
+              </Text>
+              <View
+                className={`rounded-full px-2.5 py-1 ${
+                  isPresent ? "bg-[#16a34a]" : "bg-[#dc2626]"
+                }`}
+              >
+                <Text className="text-white text-xs font-bold">
+                  {item.status}
+                </Text>
               </View>
             </View>
           );
@@ -76,96 +103,3 @@ export default function ParentAttendanceScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: '#fff',
-    flex: 1,
-  },
-  container: {
-    backgroundColor: '#fff',
-    padding: 20,
-  },
-  header: {
-    marginBottom: 16,
-  },
-  backButton: {
-    marginBottom: 10,
-    width: 58,
-  },
-  backButtonText: {
-    color: '#0f766e',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  title: {
-    color: '#0f172a',
-    fontSize: 28,
-    fontWeight: '700',
-  },
-  subtitle: {
-    color: '#475569',
-    fontSize: 14,
-    marginTop: 6,
-  },
-  summaryCard: {
-    backgroundColor: '#f0fdf4',
-    borderColor: '#bbf7d0',
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 16,
-    padding: 12,
-  },
-  summaryTitle: {
-    color: '#166534',
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 10,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  summaryText: {
-    color: '#166534',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  sectionTitle: {
-    color: '#0f172a',
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 10,
-  },
-  rowCard: {
-    alignItems: 'center',
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    borderWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-    padding: 12,
-  },
-  dateText: {
-    color: '#1e293b',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  badge: {
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  badgePresent: {
-    backgroundColor: '#16a34a',
-  },
-  badgeAbsent: {
-    backgroundColor: '#dc2626',
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-});

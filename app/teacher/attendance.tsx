@@ -1,35 +1,38 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useMemo, useState } from "react";
 import {
-  Alert,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+    Alert,
+    Pressable,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { STUDENTS } from '@/data/students';
+import { STUDENTS } from "@/data/students";
 
-type AttendanceStatus = 'present' | 'absent';
+type AttendanceStatus = "present" | "absent";
 
-const initialAttendance = STUDENTS.reduce<Record<string, AttendanceStatus>>((acc, student) => {
-  acc[student.id] = 'present';
-  return acc;
-}, {});
+const initialAttendance = STUDENTS.reduce<Record<string, AttendanceStatus>>(
+  (acc, student) => {
+    acc[student.id] = "present";
+    return acc;
+  },
+  {},
+);
 
 export default function AttendanceScreen() {
-  const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>(initialAttendance);
-  const [searchText, setSearchText] = useState('');
+  const [attendance, setAttendance] =
+    useState<Record<string, AttendanceStatus>>(initialAttendance);
+  const [searchText, setSearchText] = useState("");
   const insets = useSafeAreaInsets();
 
   const summary = useMemo(() => {
     const values = Object.values(attendance);
-    const present = values.filter((status) => status === 'present').length;
+    const present = values.filter((status) => status === "present").length;
     return {
       present,
       absent: values.length - present,
@@ -40,8 +43,8 @@ export default function AttendanceScreen() {
 
   const onSave = () => {
     Alert.alert(
-      'Attendance saved',
-      `Demo mode only.\nPresent: ${summary.present}\nAbsent: ${summary.absent}`
+      "Attendance saved",
+      `Demo mode only.\nPresent: ${summary.present}\nAbsent: ${summary.absent}`,
     );
   };
 
@@ -57,38 +60,55 @@ export default function AttendanceScreen() {
     return STUDENTS.filter(
       (student) =>
         student.name.toLowerCase().includes(normalizedSearch) ||
-        student.rollNo.includes(normalizedSearch)
+        student.rollNo.includes(normalizedSearch),
     );
   }, [normalizedSearch]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView className="bg-[#eff6ff] flex-1">
       <ScrollView
-        contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}
-        showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
+        className="bg-[#eff6ff]"
+        contentContainerStyle={{
+          paddingBottom: scrollBottomPadding,
+          padding: 20,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="mb-4">
           <Pressable
             onPress={() => router.back()}
-            style={[styles.backButton, { marginTop: insets.top > 0 ? 4 : 12 }]}>
-            <Text style={styles.backButtonText}>Back</Text>
+            className="mb-2 w-[58px]"
+            style={{ marginTop: insets.top > 0 ? 4 : 12 }}
+          >
+            <Text className="text-[#0ea5e9] text-[15px] font-semibold">
+              Back
+            </Text>
           </Pressable>
-          <Text style={styles.title}>Attendance</Text>
-          <Text style={styles.subtitle}>Class 5-A • {today}</Text>
+          <Text className="text-[#0f172a] text-[28px] font-bold">
+            Attendance
+          </Text>
+          <Text className="text-[#475569] text-sm mt-1.5">
+            Class 5-A • {today}
+          </Text>
         </View>
 
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryText}>Present: {summary.present}</Text>
-          <Text style={styles.summaryText}>Absent: {summary.absent}</Text>
+        <View className="bg-white rounded-xl flex-row justify-between mb-4 p-3">
+          <Text className="text-[#1e293b] text-sm font-semibold">
+            Present: {summary.present}
+          </Text>
+          <Text className="text-[#1e293b] text-sm font-semibold">
+            Absent: {summary.absent}
+          </Text>
         </View>
 
-        <View style={styles.searchWrap}>
+        <View className="flex-row items-center bg-white border border-[#93c5fd] rounded-xl mb-3 px-3">
           <MaterialCommunityIcons name="magnify" size={20} color="#64748b" />
           <TextInput
             value={searchText}
             onChangeText={setSearchText}
             placeholder="Search by student name or roll number"
             placeholderTextColor="#94a3b8"
-            style={styles.searchInput}
+            className="text-[#0f172a] flex-1 text-sm py-2"
           />
         </View>
 
@@ -96,30 +116,39 @@ export default function AttendanceScreen() {
           const status = attendance[student.id];
 
           return (
-            <View key={student.id} style={styles.studentCard}>
-              <View style={styles.studentInfo}>
-                <Text style={styles.studentName}>{student.name}</Text>
-                <Text style={styles.rollNumber}>Roll No: {student.rollNo}</Text>
+            <View
+              key={student.id}
+              className="flex-row justify-between border border-[#93c5fd] rounded-xl mb-2 p-3"
+            >
+              <View className="flex-1 justify-center">
+                <Text className="text-[#0f172a] text-base font-semibold">
+                  {student.name}
+                </Text>
+                <Text className="text-[#64748b] text-[13px] mt-1">
+                  Roll No: {student.rollNo}
+                </Text>
               </View>
 
-              <View style={styles.actions}>
+              <View className="flex-row items-center gap-2 ml-3">
                 <Pressable
                   onPress={() =>
                     setAttendance((prev) => ({
                       ...prev,
-                      [student.id]: 'present',
+                      [student.id]: "present",
                     }))
                   }
                   accessibilityRole="button"
                   accessibilityLabel={`Mark ${student.name} present`}
-                  style={[
-                    styles.statusButton,
-                    status === 'present' ? styles.presentSelected : styles.statusDefault,
-                  ]}>
+                  className={`items-center rounded-full h-10 w-10 justify-center border ${
+                    status === "present"
+                      ? "bg-[#16a34a] border-[#16a34a]"
+                      : "bg-white border-[#93c5fd]"
+                  }`}
+                >
                   <MaterialCommunityIcons
                     name="check-circle"
                     size={20}
-                    color={status === 'present' ? '#fff' : '#16a34a'}
+                    color={status === "present" ? "#fff" : "#16a34a"}
                   />
                 </Pressable>
 
@@ -127,19 +156,21 @@ export default function AttendanceScreen() {
                   onPress={() =>
                     setAttendance((prev) => ({
                       ...prev,
-                      [student.id]: 'absent',
+                      [student.id]: "absent",
                     }))
                   }
                   accessibilityRole="button"
                   accessibilityLabel={`Mark ${student.name} absent`}
-                  style={[
-                    styles.statusButton,
-                    status === 'absent' ? styles.absentSelected : styles.statusDefault,
-                  ]}>
+                  className={`items-center rounded-full h-10 w-10 justify-center border ${
+                    status === "absent"
+                      ? "bg-[#dc2626] border-[#dc2626]"
+                      : "bg-white border-[#93c5fd]"
+                  }`}
+                >
                   <MaterialCommunityIcons
                     name="close-circle"
                     size={20}
-                    color={status === 'absent' ? '#fff' : '#dc2626'}
+                    color={status === "absent" ? "#fff" : "#dc2626"}
                   />
                 </Pressable>
               </View>
@@ -148,155 +179,25 @@ export default function AttendanceScreen() {
         })}
 
         {filteredStudents.length === 0 ? (
-          <View style={styles.emptyWrap}>
-            <Text style={styles.emptyText}>{`No students found for "${searchText}".`}</Text>
+          <View className="items-center py-4">
+            <Text className="text-[#64748b] text-sm text-center">
+              {`No students found for "${searchText}".`}
+            </Text>
           </View>
         ) : null}
       </ScrollView>
 
-      <View pointerEvents="box-none" style={styles.floatingLayer}>
-        <Pressable onPress={onSave} style={[styles.saveButton, { bottom: floatingBottomOffset }]}>
-          <Text style={styles.saveButtonText}>Save Attendance</Text>
+      <View pointerEvents="box-none" className="absolute inset-0">
+        <Pressable
+          onPress={onSave}
+          className="absolute left-5 right-5 rounded-xl bg-[#0f766e] py-3"
+          style={{ bottom: floatingBottomOffset }}
+        >
+          <Text className="text-white text-base font-bold text-center">
+            Save Attendance
+          </Text>
         </Pressable>
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: '#fff',
-    flex: 1,
-  },
-  container: {
-    backgroundColor: '#fff',
-    flexGrow: 1,
-    padding: 20,
-  },
-  header: {
-    marginBottom: 16,
-  },
-  backButton: {
-    marginBottom: 10,
-    width: 58,
-  },
-  backButtonText: {
-    color: '#0f766e',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  title: {
-    color: '#0f172a',
-    fontSize: 28,
-    fontWeight: '700',
-  },
-  subtitle: {
-    color: '#475569',
-    fontSize: 14,
-    marginTop: 6,
-  },
-  summaryCard: {
-    backgroundColor: '#f1f5f9',
-    borderRadius: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-    padding: 12,
-  },
-  summaryText: {
-    color: '#1e293b',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  searchWrap: {
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderColor: '#cbd5e1',
-    borderRadius: 12,
-    borderWidth: 1,
-    flexDirection: 'row',
-    marginBottom: 14,
-    paddingHorizontal: 12,
-  },
-  searchInput: {
-    color: '#0f172a',
-    flex: 1,
-    fontSize: 14,
-    paddingVertical: 10,
-  },
-  studentCard: {
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    borderWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-    padding: 12,
-  },
-  studentInfo: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  studentName: {
-    color: '#0f172a',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  rollNumber: {
-    color: '#64748b',
-    fontSize: 13,
-    marginTop: 4,
-  },
-  actions: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 10,
-    marginLeft: 12,
-  },
-  statusButton: {
-    alignItems: 'center',
-    borderRadius: 999,
-    borderWidth: 1,
-    height: 42,
-    justifyContent: 'center',
-    width: 42,
-  },
-  statusDefault: {
-    backgroundColor: '#fff',
-    borderColor: '#cbd5e1',
-  },
-  presentSelected: {
-    backgroundColor: '#16a34a',
-    borderColor: '#16a34a',
-  },
-  absentSelected: {
-    backgroundColor: '#dc2626',
-    borderColor: '#dc2626',
-  },
-  emptyWrap: {
-    alignItems: 'center',
-    paddingVertical: 16,
-  },
-  emptyText: {
-    color: '#64748b',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  floatingLayer: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  saveButton: {
-    backgroundColor: '#0f766e',
-    borderRadius: 12,
-    left: 20,
-    position: 'absolute',
-    paddingVertical: 12,
-    right: 20,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-});
