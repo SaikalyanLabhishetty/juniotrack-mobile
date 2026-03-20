@@ -1,7 +1,7 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type NotificationItem = {
   id: string;
@@ -13,31 +13,31 @@ type NotificationItem = {
 
 const notifications: NotificationItem[] = [
   {
-    id: 'n1',
-    title: 'Attendance Update',
-    message: 'Your child was marked present today.',
-    time: 'Today, 09:15 AM',
+    id: "n1",
+    title: "Attendance Update",
+    message: "Your child was marked present today.",
+    time: "Today, 09:15 AM",
     unread: true,
   },
   {
-    id: 'n2',
-    title: 'Homework Assigned',
-    message: 'New Math homework has been assigned.',
-    time: 'Today, 08:40 AM',
+    id: "n2",
+    title: "Homework Assigned",
+    message: "New Math homework has been assigned.",
+    time: "Today, 08:40 AM",
     unread: true,
   },
   {
-    id: 'n3',
-    title: 'Report Published',
-    message: 'Unit Test report is now available.',
-    time: 'Yesterday, 06:10 PM',
+    id: "n3",
+    title: "Report Published",
+    message: "Unit Test report is now available.",
+    time: "Yesterday, 06:10 PM",
     unread: false,
   },
   {
-    id: 'n4',
-    title: 'Fee Reminder',
-    message: 'Fee payment due in 5 days.',
-    time: 'Yesterday, 12:00 PM',
+    id: "n4",
+    title: "Fee Reminder",
+    message: "Fee payment due in 5 days.",
+    time: "Yesterday, 12:00 PM",
     unread: false,
   },
 ];
@@ -46,109 +46,59 @@ export default function ParentNotificationsScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
+    <SafeAreaView className="bg-[#eff6ff] flex-1">
+      <ScrollView
+        className="bg-[#eff6ff]"
+        contentContainerStyle={{ padding: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="mb-4">
           <Pressable
             onPress={() => router.back()}
-            style={[styles.backButton, { marginTop: insets.top > 0 ? 4 : 12 }]}>
-            <Text style={styles.backButtonText}>Back</Text>
+            className="mb-2 w-[58px]"
+            style={{ marginTop: insets.top > 0 ? 4 : 12 }}
+          >
+            <Text className="text-[#0ea5e9] text-[15px] font-semibold">
+              Back
+            </Text>
           </Pressable>
-          <Text style={styles.title}>Notifications</Text>
-          <Text style={styles.subtitle}>Latest updates for parents</Text>
+          <Text className="text-[#0f172a] text-[28px] font-bold">
+            Notifications
+          </Text>
+          <Text className="text-[#475569] text-sm mt-1.5">
+            Latest updates for parents
+          </Text>
         </View>
 
         {notifications.map((item) => (
-          <View key={item.id} style={[styles.card, item.unread && styles.cardUnread]}>
-            <View style={styles.cardHeader}>
-              <View style={styles.titleRow}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                {item.unread ? <View style={styles.dot} /> : null}
+          <View
+            key={item.id}
+            className={`border rounded-xl p-3 mb-2 border-[#93c5fd] ${
+              item.unread ? "bg-white border-[#86efac]" : ""
+            }`}
+          >
+            <View className="flex-row items-center justify-between mb-2">
+              <View className="flex-row items-center flex-1">
+                <Text className="text-[#0f172a] text-[15px] font-bold mr-2 flex-1">
+                  {item.title}
+                </Text>
+                {item.unread ? (
+                  <View className="bg-[#16a34a] rounded-full h-2 w-2" />
+                ) : null}
               </View>
-              <MaterialCommunityIcons name="bell-outline" size={18} color="#0f766e" />
+              <MaterialCommunityIcons
+                name="bell-outline"
+                size={18}
+                color="#0f766e"
+              />
             </View>
-            <Text style={styles.message}>{item.message}</Text>
-            <Text style={styles.time}>{item.time}</Text>
+            <Text className="text-[#334155] text-[13px] leading-5 mb-2">
+              {item.message}
+            </Text>
+            <Text className="text-[#166534] text-[12px]">{item.time}</Text>
           </View>
         ))}
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: '#fff',
-    flex: 1,
-  },
-  container: {
-    backgroundColor: '#fff',
-    padding: 20,
-  },
-  header: {
-    marginBottom: 16,
-  },
-  backButton: {
-    marginBottom: 10,
-    width: 58,
-  },
-  backButtonText: {
-    color: '#0f766e',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  title: {
-    color: '#0f172a',
-    fontSize: 28,
-    fontWeight: '700',
-  },
-  subtitle: {
-    color: '#475569',
-    fontSize: 14,
-    marginTop: 6,
-  },
-  card: {
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 10,
-    padding: 12,
-  },
-  cardUnread: {
-    backgroundColor: '#f0fdf4',
-    borderColor: '#86efac',
-  },
-  cardHeader: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  titleRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    flex: 1,
-  },
-  cardTitle: {
-    color: '#0f172a',
-    fontSize: 15,
-    fontWeight: '700',
-    marginRight: 6,
-  },
-  dot: {
-    backgroundColor: '#16a34a',
-    borderRadius: 999,
-    height: 8,
-    width: 8,
-  },
-  message: {
-    color: '#334155',
-    fontSize: 13,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  time: {
-    color: '#166534',
-    fontSize: 12,
-  },
-});

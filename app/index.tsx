@@ -1,17 +1,32 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Href, router } from 'expo-router';
-import { useState } from 'react';
-import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Href, router } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-type Role = 'teacher' | 'parent';
-type FeatureId = 'attendance' | 'homework' | 'announcements' | 'reports' | 'notifications';
+import { useAuth } from "./_auth";
+
+type Role = "teacher" | "parent";
+type FeatureId =
+  | "attendance"
+  | "homework"
+  | "announcements"
+  | "reports"
+  | "notifications";
 
 type DashboardFeature = {
   id: FeatureId;
   title: string;
   shortLabel: string;
-  icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+  icon: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
   comingSoon: boolean;
   route?: Href;
 };
@@ -19,302 +34,278 @@ type DashboardFeature = {
 type RoleMeta = {
   title: string;
   subtitle: string;
-  icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+  icon: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
 };
 
-let lastSelectedRole: Role = 'teacher';
 let lastSelectedTabByRole: Record<Role, FeatureId> = {
-  teacher: 'attendance',
-  parent: 'attendance',
+  teacher: "attendance",
+  parent: "attendance",
 };
 
 const teacherFeatures: DashboardFeature[] = [
   {
-    id: 'attendance',
-    title: 'Attendance',
-    shortLabel: 'Attendance',
-    icon: 'clipboard-check-outline',
+    id: "attendance",
+    title: "Attendance",
+    shortLabel: "Attendance",
+    icon: "clipboard-check-outline",
     comingSoon: false,
-    route: '/teacher/attendance',
+    route: "/teacher/attendance",
   },
   {
-    id: 'homework',
-    title: 'Homework',
-    shortLabel: 'Homework',
-    icon: 'book-open-variant',
+    id: "homework",
+    title: "Homework",
+    shortLabel: "Homework",
+    icon: "book-open-variant",
     comingSoon: false,
-    route: '/teacher/homework',
+    route: "/teacher/homework",
   },
   {
-    id: 'announcements',
-    title: 'Announcements',
-    shortLabel: 'Announce',
-    icon: 'bullhorn-outline',
+    id: "announcements",
+    title: "Announcements",
+    shortLabel: "Announce",
+    icon: "bullhorn-outline",
     comingSoon: true,
   },
   {
-    id: 'reports',
-    title: 'Reports',
-    shortLabel: 'Reports',
-    icon: 'file-chart-outline',
+    id: "reports",
+    title: "Reports",
+    shortLabel: "Reports",
+    icon: "file-chart-outline",
     comingSoon: false,
-    route: '/teacher/reports',
+    route: "/teacher/reports",
   },
   {
-    id: 'notifications',
-    title: 'Class Notifications',
-    shortLabel: 'Notify',
-    icon: 'bell-ring-outline',
+    id: "notifications",
+    title: "Class Notifications",
+    shortLabel: "Notify",
+    icon: "bell-ring-outline",
     comingSoon: true,
   },
 ];
 
 const parentFeatures: DashboardFeature[] = [
   {
-    id: 'attendance',
-    title: 'Attendance',
-    shortLabel: 'Attendance',
-    icon: 'calendar-check-outline',
+    id: "attendance",
+    title: "Attendance",
+    shortLabel: "Attendance",
+    icon: "calendar-check-outline",
     comingSoon: false,
-    route: '/parent/attendance',
+    route: "/parent/attendance",
   },
   {
-    id: 'homework',
-    title: 'Homework',
-    shortLabel: 'Homework',
-    icon: 'book-open-variant',
+    id: "homework",
+    title: "Homework",
+    shortLabel: "Homework",
+    icon: "book-open-variant",
     comingSoon: false,
-    route: '/parent/homework',
+    route: "/parent/homework",
   },
   {
-    id: 'announcements',
-    title: 'Announcements',
-    shortLabel: 'Announce',
-    icon: 'bullhorn-outline',
+    id: "announcements",
+    title: "Announcements",
+    shortLabel: "Announce",
+    icon: "bullhorn-outline",
     comingSoon: false,
-    route: '/parent/announcements',
+    route: "/parent/announcements",
   },
   {
-    id: 'reports',
-    title: 'Reports',
-    shortLabel: 'Reports',
-    icon: 'file-chart-outline',
+    id: "reports",
+    title: "Reports",
+    shortLabel: "Reports",
+    icon: "file-chart-outline",
     comingSoon: false,
-    route: '/parent/reports',
+    route: "/parent/reports",
   },
   {
-    id: 'notifications',
-    title: 'Notifications',
-    shortLabel: 'Notify',
-    icon: 'bell-ring-outline',
+    id: "notifications",
+    title: "Notifications",
+    shortLabel: "Notify",
+    icon: "bell-ring-outline",
     comingSoon: false,
-    route: '/parent/notifications',
+    route: "/parent/notifications",
   },
 ];
 
 const roleMeta: Record<Role, RoleMeta> = {
   teacher: {
-    title: 'Teacher Dashboard',
-    subtitle: 'Use bottom navbar to open modules',
-    icon: 'account-tie-outline',
+    title: "Teacher Dashboard",
+    subtitle: "Daily class management and insights",
+    icon: "account-tie-outline",
   },
   parent: {
-    title: 'Parent Dashboard',
-    subtitle: 'Track your child progress and updates',
-    icon: 'account-heart-outline',
+    title: "Parent Dashboard",
+    subtitle: "Stay up to date with your child",
+    icon: "account-heart-outline",
   },
 };
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const [role, setRole] = useState<Role>(lastSelectedRole);
-  const [activeTab, setActiveTab] = useState<FeatureId>(lastSelectedTabByRole[lastSelectedRole]);
+  const { token, user, isLoading: authLoading, signOut } = useAuth();
+  const role = user?.role ?? "teacher";
+  const [activeTab, setActiveTab] = useState<FeatureId>(
+    lastSelectedTabByRole[role] ?? "attendance",
+  );
+  const [teachingClasses, setTeachingClasses] = useState(
+    [] as { id: string; name: string; subject: string; section: string }[],
+  );
 
-  const currentFeatures = role === 'teacher' ? teacherFeatures : parentFeatures;
-  const dashboard = roleMeta[role];
+  useEffect(() => {
+    if (!authLoading && !token) {
+      router.replace("/login");
+    }
+  }, [authLoading, token]);
 
-  const onRoleChange = (nextRole: Role) => {
-    if (role === nextRole) {
-      return;
+  useEffect(() => {
+    if (role === "teacher") {
+      setTeachingClasses([
+        { id: "c1", name: "Mathematics", subject: "Math", section: "5A" },
+        { id: "c2", name: "Science", subject: "Science", section: "5B" },
+        { id: "c3", name: "English", subject: "English", section: "5A" },
+      ]);
+    } else {
+      setTeachingClasses([]);
     }
 
-    setRole(nextRole);
-    lastSelectedRole = nextRole;
-    setActiveTab(lastSelectedTabByRole[nextRole]);
-  };
+    const initialTab = lastSelectedTabByRole[role] ?? "attendance";
+    setActiveTab(initialTab);
+  }, [role]);
+
+  if (authLoading) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-[#f0f9ff]">
+        <ActivityIndicator size="large" color="#0891b2" />
+        <Text className="mt-3 text-[#0c4a6e]">Verifying user…</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const dashboard = roleMeta[role];
+  const currentFeatures = role === "teacher" ? teacherFeatures : parentFeatures;
 
   const onPressFeature = (feature: DashboardFeature) => {
     if (feature.comingSoon) {
-      Alert.alert('Coming soon', `${feature.title} will be added soon.`);
+      Alert.alert("Coming soon", `${feature.title} is coming soon.`);
       return;
     }
-
     setActiveTab(feature.id);
     lastSelectedTabByRole[role] = feature.id;
-
-    if (feature.route) {
-      router.push(feature.route);
-    }
+    if (feature.route) router.push(feature.route);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={[styles.switchWrap, { marginTop: insets.top + 8 }]}>
-          <Pressable
-            onPress={() => onRoleChange('teacher')}
-            style={[styles.switchButton, role === 'teacher' && styles.switchButtonActive]}>
-            <Text style={[styles.switchText, role === 'teacher' && styles.switchTextActive]}>Teacher</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => onRoleChange('parent')}
-            style={[styles.switchButton, role === 'parent' && styles.switchButtonActive]}>
-            <Text style={[styles.switchText, role === 'parent' && styles.switchTextActive]}>Parent</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.centerSection}>
-          <View style={styles.centerIconWrap}>
-            <MaterialCommunityIcons name={dashboard.icon} size={58} color="#86efac" />
+    <SafeAreaView className="bg-[#eff6ff] flex-1">
+      <ScrollView
+        contentContainerStyle={{
+          paddingBottom: 24,
+          paddingTop: insets.top + 8,
+        }}
+        className="px-4"
+      >
+        <View className="flex-row items-center justify-between mb-4">
+          <View>
+            <Text className="text-lg font-bold text-[#0f172a]">Juniotrack</Text>
+            <Text className="text-xs text-[#1e3a8a]">
+              School Progress for every parent
+            </Text>
           </View>
-          <Text style={styles.title}>{dashboard.title}</Text>
-          <Text style={styles.subtitle}>{dashboard.subtitle}</Text>
+          <Pressable
+            onPress={() => signOut()}
+            className="rounded-full bg-[#0369a1] px-3 py-1.5"
+          >
+            <Text className="text-xs text-white">Sign out</Text>
+          </Pressable>
         </View>
 
-        <View style={styles.navBar}>
-          {currentFeatures.map((feature) => {
-            const isActive = activeTab === feature.id;
-            const baseColor = feature.comingSoon && !isActive ? '#4e8b62' : '#86efac';
-            const iconColor = isActive ? '#4ade80' : baseColor;
+        <View className="w-full rounded-2xl bg-white border border-[#93c5fd] p-4 shadow-sm mb-4">
+          <Text className="text-2xl font-bold text-[#0f172a]">
+            Hi, {user?.name ?? "User"}
+          </Text>
+          <Text className="text-sm text-[#475569] mt-1">
+            {dashboard.subtitle}
+          </Text>
+          <Text className="text-xs text-[#64748b] mt-2">
+            Role: {role === "teacher" ? "Teacher" : "Parent"}
+          </Text>
+        </View>
 
+        {role === "teacher" && (
+          <View className="mb-4">
+            <Text className="text-base font-semibold text-[#0f172a] mb-2">
+              Your Classes
+            </Text>
+            <View className="grid grid-cols-1 gap-2">
+              {teachingClasses.map((classItem) => (
+                <View
+                  key={classItem.id}
+                  className="rounded-xl border border-[#bfdbfe] bg-white p-3"
+                >
+                  <Text className="text-sm font-semibold text-[#0f172a]">
+                    {classItem.name}
+                  </Text>
+                  <Text className="text-xs text-[#64748b] mt-1">
+                    {classItem.subject} • Section {classItem.section}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        <View className="grid grid-cols-2 gap-3">
+          {currentFeatures.map((feature) => {
+            const active = activeTab === feature.id;
             return (
               <Pressable
                 key={feature.id}
                 onPress={() => onPressFeature(feature)}
-                style={({ pressed }) => [styles.navItem, pressed && styles.navItemPressed]}>
-                <View style={[styles.activeLine, isActive && styles.activeLineVisible]} />
-                <MaterialCommunityIcons name={feature.icon} size={24} color={iconColor} />
-                <Text
-                  style={[
-                    styles.navText,
-                    isActive && styles.navTextActive,
-                    feature.comingSoon && !isActive && styles.navTextMuted,
-                  ]}>
-                  {feature.shortLabel}
-                </Text>
+                className={`rounded-xl p-4 border ${
+                  active
+                    ? "border-[#0ea5e9] bg-[#dbeafe]"
+                    : "border-[#bfdbfe] bg-white"
+                }`}
+              >
+                <View className="flex-row items-center gap-2">
+                  <MaterialCommunityIcons
+                    name={feature.icon}
+                    size={20}
+                    color={active ? "#0ea5e9" : "#2563eb"}
+                  />
+                  <Text className="text-sm font-semibold text-[#1e40af]">
+                    {feature.shortLabel}
+                  </Text>
+                </View>
+                {feature.comingSoon && (
+                  <Text className="text-[11px] text-[#0284c7] mt-1">
+                    Coming soon
+                  </Text>
+                )}
               </Pressable>
             );
           })}
         </View>
-      </View>
+
+        <View className="mt-5 rounded-xl bg-[#c7d2fe] p-4">
+          <Text className="text-sm text-[#1e3a8a] font-semibold">
+            Quick Tips
+          </Text>
+          <Text className="text-xs text-[#1e40af] mt-1">
+            Tap any feature to open. Use role switcher to switch view between
+            teacher and parent.
+          </Text>
+        </View>
+
+        <View className="mt-6 rounded-xl bg-[#93c5fd] p-4">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-sm text-white font-bold">New UX updates</Text>
+            <Text className="text-xs text-[#dbeafe]">Fast access</Text>
+          </View>
+          <Text className="text-xs text-[#e0f2fe] mt-2">
+            App UI is refreshed to match your requested color theme and
+            interaction feel.
+          </Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: '#daffd9',
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  switchWrap: {
-    backgroundColor: '#d1fae5',
-    borderColor: '#86efac',
-    borderRadius: 999,
-    borderWidth: 1,
-    flexDirection: 'row',
-    marginHorizontal: 16,
-    padding: 4,
-  },
-  switchButton: {
-    alignItems: 'center',
-    borderRadius: 999,
-    flex: 1,
-    paddingVertical: 8,
-  },
-  switchButtonActive: {
-    backgroundColor: '#064e3b',
-  },
-  switchText: {
-    color: '#166534',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  switchTextActive: {
-    color: '#bbf7d0',
-  },
-  centerSection: {
-    alignItems: 'center',
-    flex: 1,
-    gap: 10,
-    justifyContent: 'center',
-  },
-  centerIconWrap: {
-    alignItems: 'center',
-    backgroundColor: '#064e3b',
-    borderColor: '#166534',
-    borderRadius: 52,
-    borderWidth: 1,
-    height: 104,
-    justifyContent: 'center',
-    width: 104,
-  },
-  title: {
-    color: '#064e3b',
-    fontSize: 34,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  subtitle: {
-    color: '#064e3b',
-    fontSize: 15,
-    textAlign: 'center',
-  },
-  navBar: {
-    backgroundColor: '#052e16',
-    borderTopColor: '#166534',
-    borderTopWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    overflow: 'hidden',
-    paddingBottom: 12,
-    paddingTop: 6,
-  },
-  navItem: {
-    alignItems: 'center',
-    flex: 1,
-    gap: 5,
-    paddingTop: 12,
-    position: 'relative',
-  },
-  navItemPressed: {
-    opacity: 0.75,
-  },
-  activeLine: {
-    backgroundColor: 'transparent',
-    borderRadius: 999,
-    height: 3,
-    left: '20%',
-    position: 'absolute',
-    top: 0,
-    width: '60%',
-  },
-  activeLineVisible: {
-    backgroundColor: '#4ade80',
-  },
-  navText: {
-    color: '#86efac',
-    fontSize: 11,
-    fontWeight: '500',
-  },
-  navTextActive: {
-    color: '#4ade80',
-    fontWeight: '700',
-  },
-  navTextMuted: {
-    color: '#4e8b62',
-  },
-});
