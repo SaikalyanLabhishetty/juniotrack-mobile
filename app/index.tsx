@@ -207,21 +207,24 @@ export default function HomeScreen() {
             <View className="grid grid-cols-1 gap-3">
               {classes.map((classItem) => (
                 <Pressable
-                  key={classItem.uid}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/class/[classId]",
-                      params: {
-                        classId: classItem.uid,
-                        className: classItem.className,
-                        section: classItem.section,
-                        academicYear: classItem.academicYear,
-                        isClassTeacher: classItem.isClassTeacher
-                          ? "true"
-                          : "false",
-                      },
-                    } as const)
-                  }
+                  key={classItem.uid || classItem._id}
+                  onPress={() => {
+                    const selectedClassId = classItem.uid || classItem._id;
+                    router.push(
+                      {
+                        pathname: `/class/${encodeURIComponent(selectedClassId)}`,
+                        params: {
+                          classId: selectedClassId,
+                          className: classItem.className,
+                          section: classItem.section,
+                          academicYear: classItem.academicYear,
+                          isClassTeacher: classItem.isClassTeacher
+                            ? "true"
+                            : "false",
+                        },
+                      } as never,
+                    );
+                  }}
                   className="rounded-2xl border border-[#93c5fd] bg-white p-4 shadow-sm"
                 >
                   <View className="flex-row items-center justify-between">
