@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { SafeAreaView, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type PastHomework = {
@@ -53,7 +53,7 @@ export default function PastHomeworksScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView className="bg-[#eff6ff] flex-1">
+    <View className="bg-[#eff6ff] flex-1">
       <ScrollView
         className="bg-[#eff6ff]"
         contentContainerStyle={{ padding: 20 }}
@@ -96,6 +96,8 @@ export default function PastHomeworksScreen() {
           </View>
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
+
+

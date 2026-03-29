@@ -3,7 +3,6 @@ import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import {
     Pressable,
-    SafeAreaView,
     ScrollView,
     Text,
     TextInput,
@@ -80,7 +79,7 @@ export default function ParentHomeworkScreen() {
   }, [filter, normalizedSearch]);
 
   return (
-    <SafeAreaView className="bg-[#eff6ff] flex-1">
+    <View className="bg-[#eff6ff] flex-1">
       <ScrollView
         className="bg-[#eff6ff]"
         contentContainerStyle={{ padding: 20 }}
@@ -176,6 +175,8 @@ export default function ParentHomeworkScreen() {
           </View>
         ) : null}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
+
+
