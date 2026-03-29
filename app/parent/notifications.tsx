@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type NotificationItem = {
@@ -46,7 +46,7 @@ export default function ParentNotificationsScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView className="bg-[#eff6ff] flex-1">
+    <View className="bg-[#eff6ff] flex-1">
       <ScrollView
         className="bg-[#eff6ff]"
         contentContainerStyle={{ padding: 20 }}
@@ -99,6 +99,8 @@ export default function ParentNotificationsScreen() {
           </View>
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
+
+

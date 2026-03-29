@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Announcement = {
@@ -39,7 +39,7 @@ export default function ParentAnnouncementsScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView className="bg-[#eff6ff] flex-1">
+    <View className="bg-[#eff6ff] flex-1">
       <ScrollView
         className="bg-[#eff6ff]"
         contentContainerStyle={{ padding: 20 }}
@@ -86,6 +86,8 @@ export default function ParentAnnouncementsScreen() {
           </View>
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
+
+

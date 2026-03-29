@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import {
     Alert,
     Pressable,
-    SafeAreaView,
     ScrollView,
     Text,
     TextInput,
@@ -86,7 +85,7 @@ export default function HomeworkScreen() {
   const scrollBottomPadding = 124 + insets.bottom;
 
   return (
-    <SafeAreaView className="bg-[#eff6ff] flex-1">
+    <View className="bg-[#eff6ff] flex-1">
       <ScrollView
         className="bg-[#eff6ff]"
         contentContainerStyle={{
@@ -298,6 +297,8 @@ export default function HomeworkScreen() {
           </Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
+
+
