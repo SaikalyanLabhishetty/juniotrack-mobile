@@ -61,6 +61,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { token, user, isLoading: authLoading, signOut } = useAuth();
   const role = user?.role ?? "teacher";
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [classes, setClasses] = useState<ApiClass[]>([]);
   const [classTeacher, setClassTeacher] = useState<{
     uid: string;
@@ -136,6 +137,22 @@ export default function HomeScreen() {
   }
 
   const dashboard = roleMeta[role];
+  const openClass = (classItem: ApiClass) => {
+    const selectedClassId = classItem.uid || classItem._id;
+
+    router.push(
+      {
+        pathname: `/class/${encodeURIComponent(selectedClassId)}`,
+        params: {
+          classId: selectedClassId,
+          className: classItem.className,
+          section: classItem.section,
+          academicYear: classItem.academicYear,
+          isClassTeacher: classItem.isClassTeacher ? "true" : "false",
+        },
+      } as never,
+    );
+  };
 
   return (
     <View className="bg-[#eff6ff] flex-1">
@@ -175,9 +192,27 @@ export default function HomeScreen() {
         </View>
 
         <View className="mb-4">
-          <Text className="text-base font-semibold text-[#0f172a] mb-2">
-            Your classes
-          </Text>
+          <View className="mb-2 flex-row items-center justify-between">
+            <Text className="text-base font-semibold text-[#0f172a]">
+              Your classes
+            </Text>
+            <Pressable
+              onPress={() =>
+                setViewMode((prev) => (prev === "list" ? "grid" : "list"))
+              }
+              className="h-9 w-9 items-center justify-center rounded-lg border border-[#bfdbfe] bg-white"
+            >
+              <MaterialCommunityIcons
+                name={
+                  viewMode === "list"
+                    ? "view-grid-outline"
+                    : "format-list-bulleted"
+                }
+                size={18}
+                color="#0f172a"
+              />
+            </Pressable>
+          </View>
           {classTeacher ? (
             <Text className="text-sm text-[#475569] mb-3">
               Teacher: {classTeacher.name}
@@ -204,55 +239,67 @@ export default function HomeScreen() {
               </Text>
             </View>
           ) : (
-            <View className="grid grid-cols-1 gap-3">
-              {classes.map((classItem) => (
-                <Pressable
-                  key={classItem.uid || classItem._id}
-                  onPress={() => {
-                    const selectedClassId = classItem.uid || classItem._id;
-                    router.push(
-                      {
-                        pathname: `/class/${encodeURIComponent(selectedClassId)}`,
-                        params: {
-                          classId: selectedClassId,
-                          className: classItem.className,
-                          section: classItem.section,
-                          academicYear: classItem.academicYear,
-                          isClassTeacher: classItem.isClassTeacher
-                            ? "true"
-                            : "false",
-                        },
-                      } as never,
-                    );
-                  }}
-                  className="rounded-2xl border border-[#93c5fd] bg-white p-4 shadow-sm"
-                >
-                  <View className="flex-row items-center justify-between">
-                    <View>
-                      <Text className="text-base font-semibold text-[#0f172a]">
-                        {classItem.className} - {classItem.section}
-                      </Text>
-                      <Text className="text-xs text-[#64748b] mt-2">
-                        {classItem.academicYear}
-                      </Text>
-                    </View>
-                    <MaterialCommunityIcons
-                      name="chevron-right"
-                      size={22}
-                      color="#0ea5e9"
-                    />
-                  </View>
-                  {/* <Text className="text-[11px] text-[#475569] mt-3">
+            <>
+              {viewMode === "list" ? (
+                <View className="grid grid-cols-1 gap-3">
+                  {classes.map((classItem) => (
+                    <Pressable
+                      key={classItem.uid || classItem._id}
+                      onPress={() => openClass(classItem)}
+                      className="rounded-2xl border border-[#93c5fd] bg-white p-4 shadow-sm"
+                    >
+                      <View className="flex-row items-center justify-between">
+                        <View>
+                          <Text className="text-base font-semibold text-[#0f172a]">
+                            {classItem.className} - {classItem.section}
+                          </Text>
+                          <Text className="text-xs text-[#64748b] mt-2">
+                            {classItem.academicYear}
+                          </Text>
+                        </View>
+                        <MaterialCommunityIcons
+                          name="chevron-right"
+                          size={22}
+                          color="#0ea5e9"
+                        />
+                      </View>
+                      {/* <Text className="text-[11px] text-[#475569] mt-3">
                     ID: {classItem.uid}
                   </Text> */}
-                  {/* <Text className="text-[11px] text-[#64748b] mt-2">
+                      {/* <Text className="text-[11px] text-[#64748b] mt-2">
                     {classItem.isClassTeacher
                       ? "Mark attendance for this class"
                       : "Read-only attendance view"}
                   </Text> */}
-                </Pressable>
-              ))}
-            </View>
+                    </Pressable>
+                  ))}
+                </View>
+              ) : (
+                <View className="flex-row flex-wrap justify-between">
+                  {classes.map((classItem) => (
+                    <Pressable
+                      key={classItem.uid || classItem._id}
+                      onPress={() => openClass(classItem)}
+                      className="mb-3 w-[48%] rounded-2xl border border-[#93c5fd] bg-white p-4 shadow-sm"
+                    >
+                      <View className="mb-3 flex-row items-start justify-between">
+                        <Text className="text-sm font-semibold text-[#0f172a] pr-2 flex-1">
+                          {classItem.className} - {classItem.section}
+                        </Text>
+                        <MaterialCommunityIcons
+                          name="chevron-right"
+                          size={18}
+                          color="#0ea5e9"
+                        />
+                      </View>
+                      <Text className="text-xs text-[#64748b]">
+                        {classItem.academicYear}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+            </>
           )}
         </View>
       </ScrollView>
