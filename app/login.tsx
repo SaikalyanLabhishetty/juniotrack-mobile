@@ -145,9 +145,11 @@ export default function LoginScreen() {
           className="w-full max-w-md rounded-3xl bg-white border border-[#dbeafe] p-6 shadow-xl mx-auto"
         >
           <View className="items-center">
-            <View className="h-20 w-20 rounded-full bg-gradient-to-r from-[#1d4ed8] to-[#0ea5e9] items-center justify-center shadow-lg">
-              {/* <ShieldCheck size={36} color="white" /> */}
-            </View>
+            <Image
+              source={require("../assets/images/juniotrack.png")}
+              className="h-20 w-20 rounded-full"
+              resizeMode="contain"
+            />
             <Text className="text-2xl font-bold text-[#0f172a] mt-4 text-center">
               Welcome back!
             </Text>
