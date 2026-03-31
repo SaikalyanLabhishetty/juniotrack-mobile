@@ -43,14 +43,24 @@ type ApiAssignedStudent = {
 };
 
 type ApiHomework = {
+  uid?: string;
+  id?: string;
+  _id?: string;
+  homeworkId?: string;
   title?: string;
   description?: string;
   subject?: string;
+  assignedDate?: string;
+  dueDate?: string;
+  recordStatus?: string;
+  status?: string;
   assignedStudents?: ApiAssignedStudent[];
 };
 
 type HomeworkPrefillResponse = {
   source?: string;
+  recordStatus?: string;
+  status?: string;
   class?: {
     classId?: string;
     className?: string;
@@ -59,6 +69,8 @@ type HomeworkPrefillResponse = {
   date?: string;
   homework?: ApiHomework | null;
   data?: {
+    recordStatus?: string;
+    status?: string;
     class?: {
       classId?: string;
       className?: string;
@@ -113,6 +125,13 @@ function normalizeSubjectValue(value: string) {
 
 function normalizeStudentStatus(value: string) {
   return value.trim().toLowerCase();
+}
+
+function normalizeRecordStatus(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
 }
 
 function getHomework(payload: HomeworkPrefillResponse): ApiHomework | null {
@@ -270,24 +289,46 @@ export default function HomeworkScreen() {
       const homework = getHomework(payload);
       const serverTitle = getStringValue(homework?.title);
       const serverDescription = getStringValue(homework?.description);
-      if (serverTitle) {
-        setTitle(serverTitle);
-      }
-      if (serverDescription) {
-        setDescription(serverDescription);
-      }
+      const serverSubject = normalizeSubjectValue(getStringValue(homework?.subject));
+      setTitle(serverTitle);
+      setDescription(serverDescription);
 
       const mappedStudents = mapAssignedStudents(homework?.assignedStudents);
       setStudents(mappedStudents);
 
-      const hasHomeworkText =
-        serverTitle.trim().length > 0 && serverDescription.trim().length > 0;
-      const allStudentsAssigned =
-        mappedStudents.length > 0 &&
-        mappedStudents.every(
-          (student) => normalizeStudentStatus(student.status) === "assigned",
-        );
-      setIsAlreadyAssigned(hasHomeworkText && allStudentsAssigned);
+      const normalizedRecordStatus = normalizeRecordStatus(
+        getStringValue(homework?.recordStatus) ||
+          getStringValue(homework?.status) ||
+          getStringValue(payload.recordStatus) ||
+          getStringValue(payload.status) ||
+          getStringValue(payload.data?.recordStatus) ||
+          getStringValue(payload.data?.status),
+      );
+
+      const hasActiveRecordStatus =
+        normalizedRecordStatus === "inprogress" ||
+        normalizedRecordStatus === "completed";
+      const hasHomeworkRecordId =
+        getStringValue(homework?.uid).trim().length > 0 ||
+        getStringValue(homework?.id).trim().length > 0 ||
+        getStringValue(homework?._id).trim().length > 0 ||
+        getStringValue(homework?.homeworkId).trim().length > 0;
+      const hasCompleteHomeworkData =
+        serverTitle.trim().length > 0 &&
+        serverDescription.trim().length > 0 &&
+        serverSubject.length > 0 &&
+        mappedStudents.length > 0;
+      const hasAssignedStudentsWithWorkStatus = mappedStudents.some((student) => {
+        const status = normalizeStudentStatus(student.status);
+        return status === "inprogress" || status === "completed";
+      });
+
+      setIsAlreadyAssigned(
+        hasActiveRecordStatus ||
+          hasCompleteHomeworkData ||
+          hasHomeworkRecordId ||
+          hasAssignedStudentsWithWorkStatus,
+      );
     } catch (err) {
       setStudents([]);
       setIsAlreadyAssigned(false);
