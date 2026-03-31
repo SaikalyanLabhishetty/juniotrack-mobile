@@ -128,13 +128,13 @@ export default function ParentHomeworkScreen() {
                 onPress={() => setFilter(key)}
                 className={`flex-1 items-center rounded-full border px-3 py-2 ${
                   isActive
-                    ? "bg-[#dcfce7] border-[#16a34a]"
+                    ? "bg-[#dbeafe] border-[#2563eb]"
                     : "border-[#cbd5e1]"
                 }`}
               >
                 <Text
                   className={`text-[13px] font-semibold ${
-                    isActive ? "text-[#166534]" : "text-[#475569]"
+                    isActive ? "text-[#1d4ed8]" : "text-[#475569]"
                   }`}
                 >
                   {item.label}
@@ -178,5 +178,4 @@ export default function ParentHomeworkScreen() {
     </View>
   );
 }
-
 
