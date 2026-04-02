@@ -95,13 +95,56 @@ export default function LoginScreen() {
         return;
       }
 
+      const getStringValue = (...values: unknown[]) => {
+        const match = values.find(
+          (value) => typeof value === "string" && value.trim().length > 0,
+        );
+        return typeof match === "string" ? match.trim() : undefined;
+      };
+
+      const studentName = getStringValue(
+        userData.student_name,
+        userData.studentName,
+        userData.studentname,
+      );
+
+      const studentUid = getStringValue(
+        userData.student_uid,
+        userData.studentUid,
+        userData.studentuid,
+      );
+
+      const dob = getStringValue(userData.dob, userData.dateOfBirth);
+      const enrollmentNumber = getStringValue(
+        userData.enrollment_number,
+        userData.enrollmentNumber,
+      );
+      const schoolName = getStringValue(userData.school_name, userData.schoolName);
+      const organizationName = getStringValue(
+        userData.organization_name,
+        userData.organizationName,
+      );
+      const classAndSection = getStringValue(
+        userData.class_and_section,
+        userData.classAndSection,
+      );
+      const classId = getStringValue(userData.classId, userData.class_id);
+
       await signIn(accessToken, {
         email: userData.email ?? "",
         name: userData.name,
         role: userData.role,
         uid: userData.uid,
         organizationId: userData.organizationId,
-        schoolId: userData.schoolId,
+        schoolId: userData.schoolId ?? "",
+        studentName,
+        studentUid,
+        dob,
+        enrollmentNumber,
+        schoolName,
+        organizationName,
+        classAndSection,
+        classId,
       });
       router.replace("/");
     } catch (err) {

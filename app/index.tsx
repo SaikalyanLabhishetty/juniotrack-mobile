@@ -61,6 +61,75 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { token, user, isLoading: authLoading, signOut } = useAuth();
   const role = user?.role ?? "teacher";
+  const isParent = role === "parent";
+  const parentUser = user as
+    | (typeof user & {
+        student_name?: string;
+        studentname?: string;
+        student_uid?: string;
+        studentuid?: string;
+        dob?: string;
+        enrollment_number?: string;
+        enrollmentNumber?: string;
+        school_name?: string;
+        schoolName?: string;
+        organization_name?: string;
+        organizationName?: string;
+        class_and_section?: string;
+        classAndSection?: string;
+      })
+    | null;
+  const getDisplayValue = (...values: (string | undefined)[]) => {
+    const match = values.find(
+      (value) => typeof value === "string" && value.trim().length > 0,
+    );
+    return match?.trim() ?? "NA";
+  };
+  const parentStudentUid =
+    user?.studentUid?.trim() ||
+    parentUser?.student_uid?.trim() ||
+    parentUser?.studentuid?.trim() ||
+    "";
+  const parentStudentName = getDisplayValue(
+    user?.studentName,
+    parentUser?.student_name,
+    parentUser?.studentname,
+  );
+  const parentClassId = getDisplayValue(user?.classId, parentUser?.classId);
+  const parentInfoRows = [
+    {
+      label: "Student Name",
+      value: parentStudentName,
+    },
+    {
+      label: "DOB",
+      value: getDisplayValue(user?.dob, parentUser?.dob),
+    },
+    {
+      label: "Enrollment Number",
+      value: getDisplayValue(
+        user?.enrollmentNumber,
+        parentUser?.enrollment_number,
+        parentUser?.enrollmentNumber,
+      ),
+    },
+    {
+      label: "School Name",
+      value: getDisplayValue(user?.schoolName, parentUser?.school_name, parentUser?.schoolName),
+    },
+    {
+      label: "Organization Name",
+      value: getDisplayValue(
+        user?.organizationName,
+        parentUser?.organization_name,
+        parentUser?.organizationName,
+      ),
+    },
+    {
+      label: "Class",
+      value: getDisplayValue(user?.classAndSection, parentUser?.class_and_section, parentUser?.classAndSection),
+    },
+  ];
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [classes, setClasses] = useState<ApiClass[]>([]);
   const [classTeacher, setClassTeacher] = useState<{
@@ -78,7 +147,11 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const loadClasses = async () => {
-      if (!token) {
+      if (!token || role !== "teacher") {
+        setClassTeacher(null);
+        setClasses([]);
+        setClassError(null);
+        setClassLoading(false);
         return;
       }
 
@@ -125,7 +198,7 @@ export default function HomeScreen() {
     };
 
     loadClasses();
-  }, [token]);
+  }, [token, role]);
 
   if (authLoading) {
     return (
@@ -168,7 +241,9 @@ export default function HomeScreen() {
           <View>
             <Text className="text-lg font-bold text-[#0f172a]">Juniotrack</Text>
             <Text className="text-xs text-[#1e3a8a]">
-              School progress for your classes
+              {isParent
+                ? "Track your child progress"
+                : "School progress for your classes"}
             </Text>
           </View>
           <Pressable
@@ -191,117 +266,168 @@ export default function HomeScreen() {
           </Text> */}
         </View>
 
-        <View className="mb-4">
-          <View className="mb-2 flex-row items-center justify-between">
-            <Text className="text-base font-semibold text-[#0f172a]">
-              Your classes
+        {isParent ? (
+          <View className="mb-4">
+            <Text className="text-base font-semibold text-[#0f172a] mb-2">
+              Student Info
+            </Text>
+            <View className="rounded-2xl border border-[#bfdbfe] bg-white p-4 shadow-sm">
+              {parentInfoRows.map((item, index) => (
+                <View
+                  key={item.label}
+                  className={`${index === 0 ? "" : "mt-3"} flex-row items-center justify-between`}
+                >
+                  <Text className="text-sm text-[#475569]">{item.label}</Text>
+                  <Text className="text-sm font-semibold text-[#0f172a]">
+                    {item.value}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            <Text className="text-base font-semibold text-[#0f172a] mt-4 mb-2">
+              Features
             </Text>
             <Pressable
               onPress={() =>
-                setViewMode((prev) => (prev === "list" ? "grid" : "list"))
+                router.push({
+                  pathname: "/parent/attendance",
+                  params: {
+                    studentUid: parentStudentUid,
+                    studentName: parentStudentName === "NA" ? "" : parentStudentName,
+                    classId: parentClassId === "NA" ? "" : parentClassId,
+                  },
+                } as never)
               }
-              className="h-9 w-9 items-center justify-center rounded-lg border border-[#bfdbfe] bg-white"
+              className="rounded-2xl border border-[#bfdbfe] bg-white p-4 shadow-sm"
             >
-              <MaterialCommunityIcons
-                name={
-                  viewMode === "list"
-                    ? "view-grid-outline"
-                    : "format-list-bulleted"
-                }
-                size={18}
-                color="#0f172a"
-              />
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center flex-1 pr-2">
+                  <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-[#e0f2fe]">
+                    <MaterialCommunityIcons
+                      name="clipboard-check-outline"
+                      size={20}
+                      color="#0ea5e9"
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-base font-bold text-[#0f172a]">
+                      Attendance
+                    </Text>
+                    <Text className="text-xs text-[#64748b] mt-0.5">
+                      Track monthly attendance details
+                    </Text>
+                  </View>
+                </View>
+                <MaterialCommunityIcons name="chevron-right" size={22} color="#0ea5e9" />
+              </View>
             </Pressable>
           </View>
-          {classTeacher ? (
-            <Text className="text-sm text-[#475569] mb-3">
-              Teacher: {classTeacher.name}
-            </Text>
-          ) : null}
+        ) : (
+          <View className="mb-4">
+            <View className="mb-2 flex-row items-center justify-between">
+              <Text className="text-base font-semibold text-[#0f172a]">
+                Your classes
+              </Text>
+              <Pressable
+                onPress={() =>
+                  setViewMode((prev) => (prev === "list" ? "grid" : "list"))
+                }
+                className="h-9 w-9 items-center justify-center rounded-lg border border-[#bfdbfe] bg-white"
+              >
+                <MaterialCommunityIcons
+                  name={
+                    viewMode === "list"
+                      ? "view-grid-outline"
+                      : "format-list-bulleted"
+                  }
+                  size={18}
+                  color="#0f172a"
+                />
+              </Pressable>
+            </View>
+            {classTeacher ? (
+              <Text className="text-sm text-[#475569] mb-3">
+                Teacher: {classTeacher.name}
+              </Text>
+            ) : null}
 
-          {classLoading ? (
-            <View className="rounded-2xl border border-[#bfdbfe] bg-white p-6 items-center justify-center">
-              <ActivityIndicator size="large" color="#0ea5e9" />
-              <Text className="mt-3 text-[#0f172a]">Loading classes…</Text>
-            </View>
-          ) : classError ? (
-            <View className="rounded-2xl border border-[#fecaca] bg-[#fff1f2] p-4">
-              <Text className="text-sm font-semibold text-[#b91c1c]">
-                Unable to load classes
-              </Text>
-              <Text className="text-xs text-[#991b1b] mt-1">{classError}</Text>
-            </View>
-          ) : classes.length === 0 ? (
-            <View className="rounded-2xl border border-[#bfdbfe] bg-white p-6">
-              <Text className="text-sm text-[#64748b]">
-                No classes were found for your account. Please check your login
-                or try again later.
-              </Text>
-            </View>
-          ) : (
-            <>
-              {viewMode === "list" ? (
-                <View className="grid grid-cols-1 gap-3">
-                  {classes.map((classItem) => (
-                    <Pressable
-                      key={classItem.uid || classItem._id}
-                      onPress={() => openClass(classItem)}
-                      className="rounded-2xl border border-[#93c5fd] bg-white p-4 shadow-sm"
-                    >
-                      <View className="flex-row items-center justify-between">
-                        <View>
-                          <Text className="text-base font-semibold text-[#0f172a]">
+            {classLoading ? (
+              <View className="rounded-2xl border border-[#bfdbfe] bg-white p-6 items-center justify-center">
+                <ActivityIndicator size="large" color="#0ea5e9" />
+                <Text className="mt-3 text-[#0f172a]">Loading classes…</Text>
+              </View>
+            ) : classError ? (
+              <View className="rounded-2xl border border-[#fecaca] bg-[#fff1f2] p-4">
+                <Text className="text-sm font-semibold text-[#b91c1c]">
+                  Unable to load classes
+                </Text>
+                <Text className="text-xs text-[#991b1b] mt-1">{classError}</Text>
+              </View>
+            ) : classes.length === 0 ? (
+              <View className="rounded-2xl border border-[#bfdbfe] bg-white p-6">
+                <Text className="text-sm text-[#64748b]">
+                  No classes were found for your account. Please check your login
+                  or try again later.
+                </Text>
+              </View>
+            ) : (
+              <>
+                {viewMode === "list" ? (
+                  <View className="grid grid-cols-1 gap-3">
+                    {classes.map((classItem) => (
+                      <Pressable
+                        key={classItem.uid || classItem._id}
+                        onPress={() => openClass(classItem)}
+                        className="rounded-2xl border border-[#93c5fd] bg-white p-4 shadow-sm"
+                      >
+                        <View className="flex-row items-center justify-between">
+                          <View>
+                            <Text className="text-base font-semibold text-[#0f172a]">
+                              {classItem.className} - {classItem.section}
+                            </Text>
+                            <Text className="text-xs text-[#64748b] mt-2">
+                              {classItem.academicYear}
+                            </Text>
+                          </View>
+                          <MaterialCommunityIcons
+                            name="chevron-right"
+                            size={22}
+                            color="#0ea5e9"
+                          />
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                ) : (
+                  <View className="flex-row flex-wrap justify-between">
+                    {classes.map((classItem) => (
+                      <Pressable
+                        key={classItem.uid || classItem._id}
+                        onPress={() => openClass(classItem)}
+                        className="mb-3 w-[48%] rounded-2xl border border-[#93c5fd] bg-white p-4 shadow-sm"
+                      >
+                        <View className="mb-3 flex-row items-start justify-between">
+                          <Text className="text-sm font-semibold text-[#0f172a] pr-2 flex-1">
                             {classItem.className} - {classItem.section}
                           </Text>
-                          <Text className="text-xs text-[#64748b] mt-2">
-                            {classItem.academicYear}
-                          </Text>
+                          <MaterialCommunityIcons
+                            name="chevron-right"
+                            size={18}
+                            color="#0ea5e9"
+                          />
                         </View>
-                        <MaterialCommunityIcons
-                          name="chevron-right"
-                          size={22}
-                          color="#0ea5e9"
-                        />
-                      </View>
-                      {/* <Text className="text-[11px] text-[#475569] mt-3">
-                    ID: {classItem.uid}
-                  </Text> */}
-                      {/* <Text className="text-[11px] text-[#64748b] mt-2">
-                    {classItem.isClassTeacher
-                      ? "Mark attendance for this class"
-                      : "Read-only attendance view"}
-                  </Text> */}
-                    </Pressable>
-                  ))}
-                </View>
-              ) : (
-                <View className="flex-row flex-wrap justify-between">
-                  {classes.map((classItem) => (
-                    <Pressable
-                      key={classItem.uid || classItem._id}
-                      onPress={() => openClass(classItem)}
-                      className="mb-3 w-[48%] rounded-2xl border border-[#93c5fd] bg-white p-4 shadow-sm"
-                    >
-                      <View className="mb-3 flex-row items-start justify-between">
-                        <Text className="text-sm font-semibold text-[#0f172a] pr-2 flex-1">
-                          {classItem.className} - {classItem.section}
+                        <Text className="text-xs text-[#64748b]">
+                          {classItem.academicYear}
                         </Text>
-                        <MaterialCommunityIcons
-                          name="chevron-right"
-                          size={18}
-                          color="#0ea5e9"
-                        />
-                      </View>
-                      <Text className="text-xs text-[#64748b]">
-                        {classItem.academicYear}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              )}
-            </>
-          )}
-        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
+              </>
+            )}
+          </View>
+        )}
       </ScrollView>
     </View>
   );

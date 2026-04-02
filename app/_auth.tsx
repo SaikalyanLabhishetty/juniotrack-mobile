@@ -14,6 +14,14 @@ type UserProfile = {
   uid: string;
   organizationId: string;
   schoolId: string;
+  studentName?: string;
+  studentUid?: string;
+  dob?: string;
+  enrollmentNumber?: string;
+  schoolName?: string;
+  organizationName?: string;
+  classAndSection?: string;
+  classId?: string;
 };
 
 type AuthContextValue = {
