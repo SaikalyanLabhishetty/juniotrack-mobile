@@ -2,14 +2,15 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
+    ActivityIndicator,
+    Pressable,
+    ScrollView,
+    Text,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { API_BASE_URL } from "@/services/api";
 import { useAuth } from "./_auth";
 
 type Role = "teacher" | "parent";
@@ -35,7 +36,7 @@ type ClassApiResponse = {
   classes: ApiClass[];
 };
 
-const CLASSES_URL = "https://juniotrack.vercel.app/api/teacher/classes";
+const CLASSES_URL = `${API_BASE_URL}/api/teacher/classes`;
 
 const roleMeta: Record<
   Role,

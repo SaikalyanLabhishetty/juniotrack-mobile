@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "746420663846",
+    "project_id": "juniotrack-377cf",
+    "storage_bucket": "juniotrack-377cf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:746420663846:android:500b05a46c1ebbaf1b98e7",
+        "android_client_info": {
+          "package_name": "com.junotrack.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHXwKZkLEmknrh72ZEsRQIlyq873bn-Sk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

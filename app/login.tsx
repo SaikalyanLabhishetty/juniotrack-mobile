@@ -14,9 +14,10 @@ import {
     View,
 } from "react-native";
 
+import { API_BASE_URL } from "@/services/api";
 import { useAuth } from "./_auth";
 
-const LOGIN_URL = "https://juniotrack.vercel.app/api/user/login";
+const LOGIN_URL = `${API_BASE_URL}/api/user/login`;
 
 export default function LoginScreen() {
   const router = useRouter();
