@@ -4,12 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { API_BASE_URL } from "@/services/api";
 import { useAuth } from "../_auth";
 
 type AttendanceRouteParams = {
   studentUid?: string;
   studentName?: string;
   classId?: string;
+  date?: string;
 };
 
 type AttendanceSummary = {
@@ -36,7 +38,7 @@ type AttendanceApiResponse = {
   message?: string;
 };
 
-const ATTENDANCE_URL = "https://juniotrack.vercel.app/api/parent/attendance";
+const ATTENDANCE_URL = `${API_BASE_URL}/api/parent/attendance`;
 
 const MONTH_OPTIONS = [
   { value: 1, label: "January" },
@@ -118,6 +120,22 @@ const getStatusMeta = (statusValue: string) => {
   };
 };
 
+const getMonthSelectionFromDate = (value?: string) => {
+  if (!value) {
+    return null;
+  }
+
+  const parsedDate = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  return {
+    year: parsedDate.getFullYear(),
+    month: parsedDate.getMonth() + 1,
+  };
+};
+
 export default function ParentAttendanceScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<AttendanceRouteParams>();
@@ -125,9 +143,14 @@ export default function ParentAttendanceScreen() {
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
+  const initialMonthSelection = getMonthSelectionFromDate(getStringValue(params.date));
 
-  const [selectedYear, setSelectedYear] = useState(currentYear);
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedYear, setSelectedYear] = useState(
+    initialMonthSelection?.year ?? currentYear,
+  );
+  const [selectedMonth, setSelectedMonth] = useState(
+    initialMonthSelection?.month ?? currentMonth,
+  );
   const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
   const [isMonthDropdownOpen, setIsMonthDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -178,6 +201,17 @@ export default function ParentAttendanceScreen() {
       setSelectedMonth(currentMonth);
     }
   }, [selectedYear, selectedMonth, currentYear, currentMonth]);
+
+  useEffect(() => {
+    const nextMonthSelection = getMonthSelectionFromDate(getStringValue(params.date));
+
+    if (!nextMonthSelection) {
+      return;
+    }
+
+    setSelectedYear(nextMonthSelection.year);
+    setSelectedMonth(nextMonthSelection.month);
+  }, [params.date]);
 
   useEffect(() => {
     if (!authLoading && !token) {

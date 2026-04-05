@@ -7,6 +7,9 @@ import React, {
     useState,
 } from "react";
 
+import { API_BASE_URL } from "@/services/api";
+import { cleanupPushTokenOnLogout } from "@/services/notifications/pushToken";
+
 type UserProfile = {
   email: string;
   name: string;
@@ -71,10 +74,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
-    await SecureStore.deleteItemAsync(AUTH_USER_KEY);
-    setToken(null);
-    setUser(null);
+    const activeToken = token;
+    const activeUser = user;
+
+    try {
+      if (activeToken && activeUser?.role === "parent") {
+        await cleanupPushTokenOnLogout(API_BASE_URL, activeToken);
+      }
+    } catch (error) {
+      if (__DEV__) {
+        console.warn("Push token cleanup failed during logout.", error);
+      }
+    } finally {
+      await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+      await SecureStore.deleteItemAsync(AUTH_USER_KEY);
+      setToken(null);
+      setUser(null);
+    }
   };
 
   const value = useMemo(

@@ -19,7 +19,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": true,
-      "package": "com.anonymous.juniotrack"
+      "package": "com.junotrack.app",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",
